@@ -6,10 +6,10 @@ from typing import List, Dict, Any, Optional
 class ChatInterface:
     def __init__(self, api_client, dataset_id: str):
         """
-        Chat interface component for PowerDrill
+        Chat interface component for Powerdrill
         
         Args:
-            api_client: The PowerDrill API client
+            api_client: The Powerdrill API client
             dataset_id: The current dataset ID
         """
         self.api_client = api_client

@@ -5,10 +5,10 @@ from typing import Dict, List, Optional
 class DataManager:
     def __init__(self, api_client):
         """
-        Data manager component for PowerDrill
+        Data manager component for Powerdrill
         
         Args:
-            api_client: The PowerDrill API client
+            api_client: The Powerdrill API client
         """
         self.api_client = api_client
     

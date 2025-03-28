@@ -14,7 +14,7 @@ load_dotenv()
 
 # App configuration
 st.set_page_config(
-    page_title="PowerDrill AI Data Analysis",
+    page_title="Powerdrill AI Data Analysis",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -138,7 +138,7 @@ if "exploration_questions" not in st.session_state:
     st.session_state.exploration_questions = []
 
 # App header
-st.title("PowerDrill AI Data Analysis")
+st.title("Powerdrill AI Data Analysis")
 st.markdown("Upload your data files and get AI-powered insights instantly")
 
 # Authentication

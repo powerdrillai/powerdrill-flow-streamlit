@@ -8,10 +8,10 @@ from typing import List, Optional
 class FileUploader:
     def __init__(self, api_client):
         """
-        File uploader component for PowerDrill
+        File uploader component for Powerdrill
         
         Args:
-            api_client: The PowerDrill API client
+            api_client: The Powerdrill API client
         """
         self.api_client = api_client
         self.supported_extensions = [

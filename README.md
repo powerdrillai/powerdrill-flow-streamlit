@@ -1,6 +1,6 @@
 # Powerdrill Flow - Streamlit
 
-A Streamlit application for AI data analysis using the [Powerdrill API](https://docs.powerdrill.ai/api-reference/v2/overview).
+A Streamlit application for AI data analysis using the Powerdrill API.
 
 ## Features
 
@@ -28,7 +28,7 @@ A Streamlit application for AI data analysis using the [Powerdrill API](https://
 ### Prerequisites
 
 - Python 3.8 or newer
-- PowerDrill account with API access
+- Powerdrill account with API access
 
 ### Installation
 
@@ -65,7 +65,7 @@ The application will be available at http://localhost:8501
 
 ## Usage
 
-1. Enter your PowerDrill User ID and API Key to authenticate
+1. Enter your Powerdrill User ID and API Key to authenticate
 2. Upload files or select an existing dataset
 3. Wait for data processing to complete
 4. Start asking questions about your data
@@ -81,7 +81,7 @@ powerdrill-flow-streamlit/
 │   ├── chat_interface.py # Chat interface component
 │   └── data_manager.py   # Data management component
 ├── utils/
-│   ├── api_client.py     # PowerDrill API client
+│   ├── api_client.py     # Powerdrill API client
 │   └── file_uploader.py  # File upload utility
 ├── .env                  # Environment variables (create from .env.template)
 ├── .env.template         # Environment variables template
@@ -91,4 +91,4 @@ powerdrill-flow-streamlit/
 
 ## License
 
-This project is licensed under the Apache License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details. 

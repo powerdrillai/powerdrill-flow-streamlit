@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 
 class AuthComponent:
     def __init__(self):
-        """Authentication component for PowerDrill API"""
+        """Authentication component for Powerdrill API"""
         pass
     
     def render(self) -> Tuple[Optional[str], Optional[str]]:
@@ -19,14 +19,14 @@ class AuthComponent:
             user_id = st.text_input(
                 "User ID", 
                 key="user_id",
-                help="Your PowerDrill User ID"
+                help="Your Powerdrill User ID"
             )
             
             api_key = st.text_input(
                 "API Key", 
                 type="password", 
                 key="api_key",
-                help="Your PowerDrill API Key"
+                help="Your Powerdrill API Key"
             )
             
             submitted = st.form_submit_button("Login")
@@ -41,13 +41,13 @@ class AuthComponent:
         # Display help information
         with st.expander("Need help finding your credentials?"):
             st.markdown("""
-            ### How to get your PowerDrill credentials:
+            ### How to get your Powerdrill credentials:
             
-            1. Log in to your PowerDrill account
+            1. Log in to your Powerdrill account
             2. Navigate to the API settings page
             3. Copy your User ID and API Key
             
-            If you don't have an account yet, sign up at [PowerDrill](https://powerdrill.ai)
+            If you don't have an account yet, sign up at [Powerdrill](https://powerdrill.ai)
             """)
         
         return None, None 
