@@ -85,33 +85,49 @@ class PowerdrillClient:
                     print("Streaming response (content not shown)")
                 print("="*80 + "\n")
             
-            # Raise exception for HTTP errors
+            # Raise exception for HTTP errors - this will raise HTTPError for 401, 403, etc.
             response.raise_for_status()
             
             if stream:
                 return response.iter_lines()
             
             return response.json()
-        except requests.exceptions.RequestException as e:
-            # Handle API errors
+        except requests.exceptions.HTTPError as e:
+            # Debug print error information for HTTP errors (including auth failures)
+            if self.debug and hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_data = e.response.json()
+                    print(f"POWERDRILL API ERROR - Status: {e.response.status_code}")
+                    print("-"*80)
+                    print(f"Error: {json.dumps(error_data, indent=2)}")
+                    print("="*80 + "\n")
+                except:
+                    pass
+            
+            # Re-raise the HTTPError for authentication failures
+            if hasattr(e, 'response') and e.response is not None:
+                if e.response.status_code in (401, 403):
+                    # Authentication error
+                    raise
+            
+            # For other HTTP errors, convert to a generic exception with details
             error_msg = str(e)
             try:
                 if hasattr(e, 'response') and e.response is not None:
                     error_data = e.response.json()
                     if 'message' in error_data:
                         error_msg = error_data['message']
-                    
-                    # Debug print error information
-                    if self.debug:
-                        print(f"POWERDRILL API ERROR - Status: {e.response.status_code}")
-                        print("-"*80)
-                        print(f"Error: {json.dumps(error_data, indent=2)}")
-                        print("="*80 + "\n")
             except:
-                if self.debug:
-                    print(f"POWERDRILL API ERROR - {error_msg}")
-                    print("="*80 + "\n")
                 pass
+            
+            raise Exception(f"API request failed: {error_msg}")
+            
+        except requests.exceptions.RequestException as e:
+            # Handle other request errors
+            error_msg = str(e)
+            if self.debug:
+                print(f"POWERDRILL API ERROR - {error_msg}")
+                print("="*80 + "\n")
             
             raise Exception(f"API request failed: {error_msg}")
     

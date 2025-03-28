@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 import time
+import requests
 
 from utils.api_client import PowerdrillClient
 from utils.file_uploader import FileUploader
@@ -154,14 +155,28 @@ if not st.session_state.authenticated:
             
             # Test authentication by listing datasets
             try:
-                client.list_datasets()
+                # Attempt to list datasets to validate credentials
+                response = client.list_datasets()
+                
+                # If we reached here, the request was successful (200 OK)
                 st.session_state.authenticated = True
                 st.session_state.api_client = client
                 st.success("Authentication successful!")
                 time.sleep(1)
                 st.rerun()
+            except requests.exceptions.HTTPError as e:
+                # Handle specific HTTP errors
+                if e.response.status_code == 401 or e.response.status_code == 403:
+                    st.error("Authentication failed: Invalid User ID or API Key")
+                else:
+                    st.error(f"Authentication failed: {str(e)}")
             except Exception as e:
-                st.error(f"Authentication failed: {str(e)}")
+                # Handle any other errors
+                error_msg = str(e)
+                if "API request failed" in error_msg:
+                    st.error("Authentication failed: Invalid User ID or API Key")
+                else:
+                    st.error(f"Authentication failed: {error_msg}")
 else:
     # Main app interface after authentication
     client = st.session_state.api_client
