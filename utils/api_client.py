@@ -151,7 +151,8 @@ class PowerdrillClient:
             "/datasets",
             json_data={
                 "name": name,
-                "description": description
+                "description": description,
+                "user_id": self.user_id
             }
         )
     
@@ -191,7 +192,8 @@ class PowerdrillClient:
             json_data={
                 "dataset_id": dataset_id,
                 "source_name": file_name,
-                "description": f"Uploaded file: {file_name}"
+                "description": f"Uploaded file: {file_name}",
+                "user_id": self.user_id
             }
         )
         
@@ -205,7 +207,8 @@ class PowerdrillClient:
             "POST",
             f"/datasources/{data_source_id}/presign",
             json_data={
-                "content_type": "application/octet-stream"
+                "content_type": "application/octet-stream",
+                "user_id": self.user_id
             }
         )
         
@@ -252,7 +255,8 @@ class PowerdrillClient:
             json_data={
                 "dataset_id": dataset_id,
                 "prompt": prompt,
-                "stream": stream
+                "stream": stream,
+                "user_id": self.user_id
             },
             stream=stream
         )
