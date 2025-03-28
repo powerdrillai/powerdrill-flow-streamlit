@@ -133,6 +133,8 @@ if "api_client" not in st.session_state:
     st.session_state.api_client = None
 if "current_dataset_id" not in st.session_state:
     st.session_state.current_dataset_id = None
+if "current_dataset_name" not in st.session_state:
+    st.session_state.current_dataset_name = None
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "exploration_questions" not in st.session_state:
@@ -189,7 +191,11 @@ else:
         
         # File uploader component
         st.header("Upload New Files")
-        file_uploader = FileUploader(client)
+        
+        # Get the selected dataset name from session state if available
+        dataset_name = st.session_state.get("current_dataset_name")
+        
+        file_uploader = FileUploader(client, initial_dataset_name=dataset_name)
         uploaded = file_uploader.render()
         
         if uploaded:

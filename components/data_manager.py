@@ -72,7 +72,11 @@ class DataManager:
                     
                     with col1:
                         if st.button("Use Selected Dataset", key="use_dataset"):
+                            # Get the selected dataset name
+                            selected_dataset_name = next((d.get('name', '') for d in datasets if d.get('id') == selected_dataset), '')
+                            # Store both ID and name in session state
                             st.session_state.current_dataset_id = selected_dataset
+                            st.session_state.current_dataset_name = selected_dataset_name
                             st.rerun()
                     
                     with col2:
@@ -103,8 +107,8 @@ class DataManager:
             # Get data sources for the current dataset
             response = self.api_client.list_data_sources(dataset_id)
             
-            if 'data' in response and 'items' in response['data']:
-                data_sources = response['data']['items']
+            if 'data' in response and 'records' in response['data']:
+                data_sources = response['data']['records']
                 
                 if not data_sources:
                     st.info("No data sources found in this dataset.")
@@ -114,7 +118,7 @@ class DataManager:
                 df = pd.DataFrame([
                     {
                         "ID": d.get('id', ''),
-                        "Name": d.get('source_name', ''),
+                        "Name": d.get('name', ''),
                         "Status": d.get('status', ''),
                         "Type": d.get('type', '')
                     }
@@ -128,7 +132,7 @@ class DataManager:
                 selected_source = st.selectbox(
                     "Select a data source", 
                     options=[d.get('id') for d in data_sources],
-                    format_func=lambda x: next((d.get('source_name', x) for d in data_sources if d.get('id') == x), x)
+                    format_func=lambda x: next((d.get('name', x) for d in data_sources if d.get('id') == x), x)
                 )
                 
                 if selected_source:
@@ -144,6 +148,7 @@ class DataManager:
         """Delete a dataset"""
         if st.session_state.get("current_dataset_id") == dataset_id:
             st.session_state.current_dataset_id = None
+            st.session_state.current_dataset_name = None
         
         try:
             with st.spinner("Deleting dataset..."):
@@ -155,9 +160,15 @@ class DataManager:
     
     def _delete_data_source(self, data_source_id: str):
         """Delete a data source"""
+        # Get current dataset ID
+        dataset_id = st.session_state.get("current_dataset_id")
+        if not dataset_id:
+            st.error("Dataset ID is required to delete a data source")
+            return
+            
         try:
             with st.spinner("Deleting data source..."):
-                self.api_client.delete_data_source(data_source_id)
+                self.api_client.delete_data_source(data_source_id, dataset_id)
                 st.success("Data source deleted successfully")
                 st.rerun()
         except Exception as e:

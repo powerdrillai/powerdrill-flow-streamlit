@@ -6,14 +6,16 @@ from datetime import datetime
 from typing import List, Optional
 
 class FileUploader:
-    def __init__(self, api_client):
+    def __init__(self, api_client, initial_dataset_name: Optional[str] = None):
         """
         File uploader component for Powerdrill
         
         Args:
             api_client: The Powerdrill API client
+            initial_dataset_name: Initial dataset name to use (when a dataset is selected)
         """
         self.api_client = api_client
+        self.initial_dataset_name = initial_dataset_name
         self.supported_extensions = [
             ".csv", ".tsv", ".md", ".mdx", ".json", 
             ".txt", ".pdf", ".pptx", ".docx", ".xls", ".xlsx"
@@ -26,9 +28,12 @@ class FileUploader:
         Returns:
             Dataset ID if files were uploaded and processed, None otherwise
         """
+        # Use the initial dataset name if provided, otherwise generate a default name
+        default_name = self.initial_dataset_name if self.initial_dataset_name else f"Dataset_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
         dataset_name = st.text_input(
             "Dataset Name", 
-            value=f"Dataset_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            value=default_name,
             help="Enter a name for your dataset"
         )
         

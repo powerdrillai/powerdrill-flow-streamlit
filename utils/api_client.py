@@ -131,6 +131,97 @@ class PowerdrillClient:
             
             raise Exception(f"API request failed: {error_msg}")
     
+    def _upload_file(self, file_path: str, file_name: str) -> str:
+        """
+        Upload a file to Powerdrill and get the file_object_key
+        
+        Args:
+            file_path: Path to the file to upload
+            file_name: Name of the file
+            
+        Returns:
+            The file_object_key of the uploaded file
+        """
+        url = f"{self.api_endpoint}/file/upload-datasource"
+        
+        # Prepare the multipart/form-data payload
+        payload = {'user_id': self.user_id}
+        
+        # Determine content type based on file extension
+        file_ext = os.path.splitext(file_name)[1].lower()
+        if file_ext == '.csv':
+            content_type = 'text/csv'
+        elif file_ext == '.pdf':
+            content_type = 'application/pdf'
+        elif file_ext == '.json':
+            content_type = 'application/json'
+        elif file_ext == '.txt':
+            content_type = 'text/plain'
+        elif file_ext == '.md' or file_ext == '.mdx':
+            content_type = 'text/markdown'
+        elif file_ext == '.xlsx' or file_ext == '.xls':
+            content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        elif file_ext == '.docx' or file_ext == '.doc':
+            content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        elif file_ext == '.pptx' or file_ext == '.ppt':
+            content_type = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        elif file_ext == '.tsv':
+            content_type = 'text/tab-separated-values'
+        else:
+            content_type = 'application/octet-stream'
+        
+        # Create files parameter for the multipart request
+        files = [
+            ('file', (file_name, open(file_path, 'rb'), content_type))
+        ]
+        
+        # Modify headers for multipart/form-data (remove Content-Type as it will be set automatically)
+        upload_headers = {
+            "x-pd-api-key": self.api_key
+        }
+        
+        # Debug information
+        if self.debug:
+            print("\n" + "="*80)
+            print(f"POWERDRILL FILE UPLOAD - POST {url}")
+            print("-"*80)
+            print(f"Headers: {self._sanitize_headers(upload_headers)}")
+            print(f"File: {file_path} ({file_name})")
+            print(f"Content-Type: {content_type}")
+            print("-"*80)
+        
+        try:
+            response = requests.request("POST", url, headers=upload_headers, data=payload, files=files)
+            
+            # Debug print response information
+            if self.debug:
+                print(f"POWERDRILL FILE UPLOAD RESPONSE - Status: {response.status_code}")
+                print("-"*80)
+                try:
+                    resp_json = response.json()
+                    print(f"Response: {json.dumps(resp_json, indent=2)}")
+                except:
+                    print(f"Response (text): {response.text[:1000]}...")
+                print("="*80 + "\n")
+            
+            response.raise_for_status()
+            upload_response = response.json()
+            
+            if 'data' not in upload_response or 'file_object_key' not in upload_response['data']:
+                raise Exception("Failed to upload file: Invalid response format")
+            
+            return upload_response['data']['file_object_key']
+            
+        except Exception as e:
+            error_msg = str(e)
+            if self.debug:
+                print(f"POWERDRILL FILE UPLOAD ERROR - {error_msg}")
+                print("="*80 + "\n")
+            raise Exception(f"File upload failed: {error_msg}")
+        finally:
+            # Close the file
+            files[0][1][1].close()
+    
     def _sanitize_headers(self, headers: Dict) -> Dict:
         """Sanitize headers to hide sensitive information"""
         sanitized = headers.copy()
@@ -177,73 +268,64 @@ class PowerdrillClient:
     # Data source operations
     
     def list_data_sources(self, dataset_id: Optional[str] = None) -> Dict:
-        """List data sources, optionally filtered by dataset"""
-        params = {}
-        if dataset_id:
-            params["dataset_id"] = dataset_id
-        return self._make_request("GET", "/datasources", params=params)
+        """
+        List data sources in the specified dataset
+        
+        Args:
+            dataset_id: The dataset ID to list data sources from
+            
+        Returns:
+            Dict containing the list of data sources
+        """
+        if not dataset_id:
+            raise ValueError("Dataset ID is required to list data sources")
+            
+        # The correct endpoint should be /datasets/{id}/datasources
+        return self._make_request("GET", f"/datasets/{dataset_id}/datasources")
     
     def create_data_source(self, dataset_id: str, file_path: str, file_name: str) -> Dict:
-        """Create a data source by uploading a file"""
-        # First create a data source
-        data_source = self._make_request(
-            "POST",
-            "/datasources",
-            json_data={
-                "dataset_id": dataset_id,
-                "source_name": file_name,
-                "description": f"Uploaded file: {file_name}",
-                "user_id": self.user_id
-            }
-        )
+        """
+        Create a data source by uploading a file
         
-        if 'data' not in data_source or 'id' not in data_source['data']:
-            raise Exception("Failed to create data source")
+        This is a two-step process:
+        1. Upload the file using multipart/form-data to get file_object_key
+        2. Create a data source using the file_object_key
         
-        data_source_id = data_source['data']['id']
-        
-        # Then presign the data source for upload
-        presign_response = self._make_request(
-            "POST",
-            f"/datasources/{data_source_id}/presign",
-            json_data={
-                "content_type": "application/octet-stream",
-                "user_id": self.user_id
-            }
-        )
-        
-        if 'data' not in presign_response or 'presigned_url' not in presign_response['data']:
-            raise Exception("Failed to get presigned URL")
-        
-        # Upload the file to the presigned URL
-        presigned_url = presign_response['data']['presigned_url']
-        
-        if self.debug:
-            print("\n" + "="*80)
-            print(f"POWERDRILL FILE UPLOAD - PUT {presigned_url}")
-            print("-"*80)
-            print(f"File: {file_path} ({file_name})")
-            print(f"Content-Type: application/octet-stream")
-            print("-"*80)
-        
-        with open(file_path, 'rb') as f:
-            upload_response = requests.put(
-                presigned_url,
-                data=f,
-                headers={"Content-Type": "application/octet-stream"}
-            )
+        Args:
+            dataset_id: The dataset ID to create the data source in
+            file_path: Path to the file to upload
+            file_name: Name of the file
             
-            if self.debug:
-                print(f"POWERDRILL FILE UPLOAD RESPONSE - Status: {upload_response.status_code}")
-                print("="*80 + "\n")
-                
-            upload_response.raise_for_status()
+        Returns:
+            The created data source information
+        """
+        # Step 1: Upload the file to get file_object_key
+        file_object_key = self._upload_file(file_path, file_name)
         
-        return data_source
+        # Step 2: Create a data source using the file_object_key
+        return self._make_request(
+            "POST",
+            f"/datasets/{dataset_id}/datasources",
+            json_data={
+                "name": file_name,
+                "type": "FILE",
+                "user_id": self.user_id,
+                "file_object_key": file_object_key
+            }
+        )
     
-    def delete_data_source(self, data_source_id: str) -> Dict:
-        """Delete a data source"""
-        return self._make_request("DEL", f"/datasources/{data_source_id}")
+    def delete_data_source(self, data_source_id: str, dataset_id: str) -> Dict:
+        """
+        Delete a data source
+        
+        Args:
+            data_source_id: The ID of the data source to delete
+            dataset_id: The ID of the dataset that contains the data source
+            
+        Returns:
+            Response from the API
+        """
+        return self._make_request("DEL", f"/datasets/{dataset_id}/datasources/{data_source_id}")
     
     # Job operations
     
