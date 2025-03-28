@@ -327,19 +327,98 @@ class PowerdrillClient:
         """
         return self._make_request("DEL", f"/datasets/{dataset_id}/datasources/{data_source_id}")
     
+    # Session operations
+    
+    def create_session(self, session_name: str, output_language: str = "AUTO", job_mode: str = "AUTO", max_contextual_job_history: int = 10) -> Dict:
+        """
+        Create a session for continuous interaction
+        
+        Args:
+            session_name: Name for the session
+            output_language: Language for the output (e.g., AUTO, EN, FR)
+            job_mode: Job mode (AUTO or DATA_ANALYTICS)
+            max_contextual_job_history: Max number of recent jobs retained as context
+            
+        Returns:
+            Dict containing the session ID
+        """
+        return self._make_request(
+            "POST",
+            "/sessions",
+            json_data={
+                "name": session_name,
+                "user_id": self.user_id,
+                "output_language": output_language,
+                "job_mode": job_mode,
+                "max_contextual_job_history": max_contextual_job_history,
+                "agent_id": "DATA_ANALYSIS_AGENT"
+            }
+        )
+    
+    def get_session(self, session_id: str) -> Dict:
+        """
+        Get session details
+        
+        Args:
+            session_id: The session ID
+            
+        Returns:
+            Dict containing session details
+        """
+        return self._make_request("GET", f"/sessions/{session_id}")
+    
+    def list_sessions(self) -> Dict:
+        """
+        List all sessions
+        
+        Returns:
+            Dict containing the list of sessions
+        """
+        return self._make_request("GET", "/sessions")
+    
     # Job operations
     
-    def create_job(self, dataset_id: str, prompt: str, stream: bool = True) -> Union[Dict, Iterator]:
-        """Create a job to analyze data based on prompt"""
+    def create_job(self, dataset_id: str, prompt: str, stream: bool = True, session_id: str = None, datasource_ids: List[str] = None) -> Union[Dict, Iterator]:
+        """
+        Create a job to analyze data based on prompt/question
+        
+        Args:
+            dataset_id: The dataset ID
+            prompt: The question or prompt to analyze data
+            stream: Whether to stream the response
+            session_id: Session ID (required for API v2)
+            datasource_ids: Optional list of specific data source IDs to use
+            
+        Returns:
+            Response from the API or a stream iterator
+        """
+        # If no session_id provided, create a new session
+        if not session_id:
+            session_name = f"Session_{int(time.time())}"
+            session_response = self.create_session(session_name)
+            session_id = session_response['data']['id']
+            if self.debug:
+                print(f"Created new session: {session_id}")
+        
+        # Prepare the request payload
+        json_data = {
+            "dataset_id": dataset_id,
+            "question": prompt,  # API expects 'question' rather than 'prompt'
+            "session_id": session_id,  # Session ID is required
+            "stream": stream,
+            "user_id": self.user_id,
+            "output_language": "AUTO",
+            "job_mode": "AUTO"
+        }
+        
+        # Add optional parameters if provided
+        if datasource_ids:
+            json_data["datasource_ids"] = datasource_ids
+            
         return self._make_request(
             "POST",
             "/jobs",
-            json_data={
-                "dataset_id": dataset_id,
-                "prompt": prompt,
-                "stream": stream,
-                "user_id": self.user_id
-            },
+            json_data=json_data,
             stream=stream
         )
     

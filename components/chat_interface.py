@@ -4,6 +4,7 @@ import time
 import tempfile
 import os
 from typing import List, Dict, Any, Optional
+import pandas as pd
 
 class ChatInterface:
     def __init__(self, api_client, dataset_id: str):
@@ -20,6 +21,12 @@ class ChatInterface:
         # Initialize chat history if not in session state
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = []
+            
+        # Initialize session_id for conversation if not in session state
+        if "powerdrill_session_id" not in st.session_state or st.session_state.get("powerdrill_dataset_id") != dataset_id:
+            # Create a new session for this dataset
+            self._create_new_session()
+            st.session_state.powerdrill_dataset_id = dataset_id
         
         # Get dataset overview if not already loaded
         if st.session_state.get("exploration_questions") is None or st.session_state.get("current_dataset_id") != dataset_id:
@@ -257,8 +264,26 @@ class ChatInterface:
             response_content = ""
             
             try:
-                # Call API with streaming enabled
-                stream = self.api_client.create_job(self.dataset_id, question, stream=True)
+                # Get the session ID for the conversation
+                session_id = st.session_state.get("powerdrill_session_id")
+                
+                # If we don't have a session ID, create one
+                if not session_id:
+                    self._create_new_session()
+                    session_id = st.session_state.get("powerdrill_session_id")
+                
+                # Call API with streaming enabled and passing the session ID
+                stream = self.api_client.create_job(
+                    dataset_id=self.dataset_id, 
+                    prompt=question, 
+                    stream=True,
+                    session_id=session_id
+                )
+                
+                # Track job completion status
+                job_id = None
+                images = []
+                tables = []
                 
                 # Process streaming response
                 for line in stream:
@@ -269,8 +294,59 @@ class ChatInterface:
                         # Try to decode the line as JSON
                         data = json.loads(line.decode('utf-8'))
                         
-                        # Process different message types
-                        if 'data' in data and 'messages' in data['data']:
+                        # Get job ID from the first response
+                        if 'data' in data and 'job_id' in data['data'] and job_id is None:
+                            job_id = data['data']['job_id']
+                        
+                        # Process blocks in the response
+                        if 'data' in data and 'blocks' in data['data']:
+                            for block in data['data']['blocks']:
+                                block_type = block.get('type')
+                                content = block.get('content')
+                                
+                                if block_type == 'MESSAGE' and content:
+                                    # For text messages, append to response
+                                    response_content += content
+                                    message_placeholder.markdown(response_content)
+                                
+                                elif block_type == 'IMAGE' and isinstance(content, dict) and 'url' in content:
+                                    # For image content
+                                    image_url = content.get('url')
+                                    image_name = content.get('name', 'Image')
+                                    if image_url and image_url not in [img['url'] for img in images]:
+                                        images.append({'url': image_url, 'name': image_name})
+                                
+                                elif block_type == 'TABLE' and isinstance(content, dict) and 'url' in content:
+                                    # For table content
+                                    table_url = content.get('url')
+                                    table_name = content.get('name', 'Table')
+                                    if table_url and table_url not in [tbl['url'] for tbl in tables]:
+                                        tables.append({'url': table_url, 'name': table_name})
+                                        
+                                elif block_type == 'SOURCES' and isinstance(content, list):
+                                    # For sources, add a section at the end
+                                    if content and len(content) > 0:
+                                        sources_text = "\n\n**Sources:**\n"
+                                        for source in content:
+                                            if 'source' in source:
+                                                sources_text += f"- {source['source']}\n"
+                                        
+                                        if sources_text != "\n\n**Sources:**\n":
+                                            response_content += sources_text
+                                            message_placeholder.markdown(response_content)
+                                
+                                elif block_type == 'QUESTIONS' and isinstance(content, list):
+                                    # For follow-up questions, add them at the end
+                                    if content and len(content) > 0:
+                                        questions_text = "\n\n**Follow-up questions:**\n"
+                                        for q in content:
+                                            questions_text += f"- {q}\n"
+                                        
+                                        response_content += questions_text
+                                        message_placeholder.markdown(response_content)
+                        
+                        # Legacy format support for backwards compatibility
+                        elif 'data' in data and 'messages' in data['data']:
                             for msg in data['data']['messages']:
                                 msg_type = msg.get('type')
                                 content = msg.get('content')
@@ -284,16 +360,47 @@ class ChatInterface:
                                     elif isinstance(content, str):
                                         response_content += content
                                         message_placeholder.markdown(response_content)
+                        
                     except json.JSONDecodeError:
                         # If not valid JSON, skip
                         continue
+                
+                # Display any images after the text response
+                for image in images:
+                    st.image(image['url'], caption=image['name'])
+                
+                # Display any tables after the text response
+                for table in tables:
+                    st.write(f"**{table['name']}**")
+                    try:
+                        # Attempt to load the CSV from the URL and display as a table
+                        table_data = pd.read_csv(table['url'])
+                        st.dataframe(table_data)
+                    except Exception:
+                        st.write(f"[View table]({table['url']})")
+                
             except Exception as e:
                 error_msg = f"Error processing question: {str(e)}"
                 message_placeholder.error(error_msg)
                 response_content = error_msg
             
-            # Add assistant message to chat history
+            # Add assistant message to chat history (text content only)
             st.session_state.chat_history.append({
                 'is_user': False,
                 'content': response_content
-            }) 
+            })
+    
+    def _create_new_session(self):
+        """Create a new Powerdrill session"""
+        try:
+            session_name = f"Dataset_{self.dataset_id}_{int(time.time())}"
+            response = self.api_client.create_session(session_name)
+            if 'data' in response and 'id' in response['data']:
+                st.session_state.powerdrill_session_id = response['data']['id']
+                if st.session_state.get("debug", False):
+                    st.info(f"Created new session: {st.session_state.powerdrill_session_id}")
+            else:
+                st.warning("Failed to create a session. Some features may not work correctly.")
+        except Exception as e:
+            st.error(f"Error creating session: {str(e)}")
+            st.session_state.powerdrill_session_id = None 
