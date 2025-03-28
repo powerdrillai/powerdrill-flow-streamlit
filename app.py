@@ -196,16 +196,20 @@ else:
         dataset_name = st.session_state.get("current_dataset_name")
         
         file_uploader = FileUploader(client, initial_dataset_name=dataset_name)
-        uploaded = file_uploader.render()
+        files_ready = file_uploader.render()
         
-        if uploaded:
-            st.success("Files uploaded successfully!")
-            st.session_state.current_dataset_id = uploaded
+        if files_ready:
+            # We'll handle processing in the chat interface
             st.rerun()
     
     # Main content area
-    if st.session_state.current_dataset_id:
-        # Chat interface
+    if st.session_state.get("processing_files", False):
+        # If we're processing files, show a chat interface with a temporary dataset id
+        # This will be updated once processing is complete
+        chat = ChatInterface(client, st.session_state.get("current_dataset_id", "temp-processing"))
+        chat.render()
+    elif st.session_state.current_dataset_id:
+        # Chat interface with selected dataset
         chat = ChatInterface(client, st.session_state.current_dataset_id)
         chat.render()
     else:
