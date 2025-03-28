@@ -1,6 +1,6 @@
-# PowerDrill Flow - Streamlit
+# Powerdrill Flow - Streamlit
 
-A Streamlit application for AI data analysis using the PowerDrill API.
+A Streamlit application for AI data analysis using the [Powerdrill API](https://docs.powerdrill.ai/api-reference/v2/overview).
 
 ## Features
 
@@ -91,4 +91,4 @@ powerdrill-flow-streamlit/
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the Apache License - see the LICENSE file for details. 
