@@ -16,8 +16,7 @@ class AuthComponent:
         st.header("Authentication")
         
         st.info("""
-        Please enter your Powerdrill credentials to access the API. 
-        Authentication is verified by calling the list datasets API.
+        Please enter your Powerdrill API Key and User ID.
         """)
         
         with st.form("auth_form"):
@@ -26,7 +25,7 @@ class AuthComponent:
                 key="user_id",
                 help="Your Powerdrill User ID (looks like: tmm-xxxxxxxxxxxx)"
             )
-            
+
             api_key = st.text_input(
                 "API Key", 
                 type="password", 

@@ -364,7 +364,7 @@ class ChatInterface:
                     except json.JSONDecodeError:
                         # If not valid JSON, skip
                         continue
-                
+
                 # Display any images after the text response
                 for image in images:
                     st.image(image['url'], caption=image['name'])
