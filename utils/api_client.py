@@ -263,7 +263,11 @@ class PowerdrillClient:
     
     def delete_dataset(self, dataset_id: str) -> Dict:
         """Delete a dataset"""
-        return self._make_request("DEL", f"/datasets/{dataset_id}")
+        return self._make_request(
+            "DELETE", 
+            f"/datasets/{dataset_id}", 
+            json_data={"user_id": self.user_id}
+        )
     
     # Data source operations
     
