@@ -28,7 +28,7 @@ st.markdown("""
     .main {
         background-color: #f8f9fa;
     }
-    
+
     /* Sidebar styling to match design */
     [data-testid="stSidebar"] {
         background-color: #2D3748 !important;
@@ -37,37 +37,37 @@ st.markdown("""
         flex-shrink: 0 !important;
         padding: 1.5rem !important;
     }
-    
+
     [data-testid="stSidebar"] h1, 
     [data-testid="stSidebar"] h2, 
     [data-testid="stSidebar"] h3 {
         color: white !important;
     }
-    
+
     [data-testid="stSidebar"] .stTabs [data-baseweb="tab-list"] {
         gap: 2px;
         border-bottom-color: #4A5568 !important;
     }
-    
+
     [data-testid="stSidebar"] .stTabs [role="tab"] {
         background-color: transparent !important;
         color: #A0AEC0 !important;
         border-radius: 0 !important;
         padding: 0.5rem 1rem !important;
     }
-    
+
     [data-testid="stSidebar"] .stTabs [role="tab"][aria-selected="true"] {
         background-color: transparent !important;
         color: white !important;
         border-bottom: 2px solid #F56565 !important;
     }
-    
+
     [data-testid="stSidebar"] .stButton button {
         background-color: #3182CE !important;
         color: white !important;
         border-radius: 0.375rem !important;
     }
-    
+
     [data-testid="stSidebar"] .stTextInput input,
     [data-testid="stSidebar"] .stTextArea textarea {
         background-color: #1A202C !important;
@@ -75,48 +75,48 @@ st.markdown("""
         border: 1px solid #4A5568 !important;
         border-radius: 0.375rem !important;
     }
-    
+
     /* Remove the sidebar collapse button */
     button[kind="header"] {
         display: none !important;
     }
-    
+
     /* Force 2-column layout: sidebar and main content */
     .appview-container {
         width: 100% !important;
         display: flex !important;
         flex-direction: row !important;
     }
-    
+
     /* Fix main content */
     [data-testid="stAppViewContainer"] > .main {
         flex-grow: 1 !important;
         max-width: calc(100% - 400px) !important;
     }
-    
+
     /* Remove extra spacing */
     .block-container {
         max-width: 100% !important;
         padding: 2rem !important;
     }
-    
+
     /* Remove all extra columns and padding */
     div:has(> [data-testid="stSidebar"]) {
         margin: 0 !important;
         padding: 0 !important;
     }
-    
+
     /* Button styling */
     .stButton button {
         background-color: #3182CE;
         color: white;
     }
-    
+
     /* Progress bar */
     .stProgress .st-bo {
         background-color: #3182CE;
     }
-    
+
     /* Info message styling */
     .element-container div[data-testid="stVerticalBlock"] div[data-baseweb="notification"] {
         background-color: #2C5282 !important;
@@ -148,18 +148,18 @@ st.markdown("Upload your data files and get AI-powered insights instantly")
 if not st.session_state.authenticated:
     auth = AuthComponent()
     user_id, api_key = auth.render()
-    
+
     if user_id and api_key:
         with st.spinner("Authenticating..."):
             # Initialize API client
             api_endpoint = os.getenv("POWERDRILL_API_ENDPOINT", "https://ai.data.cloud/api/v2/team")
             client = PowerdrillClient(api_endpoint, user_id, api_key)
-            
+
             # Test authentication by listing datasets
             try:
                 # Attempt to list datasets to validate credentials
                 response = client.list_datasets()
-                
+
                 # If we reached here, the request was successful (200 OK)
                 st.session_state.authenticated = True
                 st.session_state.api_client = client
@@ -182,26 +182,26 @@ if not st.session_state.authenticated:
 else:
     # Main app interface after authentication
     client = st.session_state.api_client
-    
+
     # Sidebar with data management
     with st.sidebar:
         st.header("Data Management")
         data_manager = DataManager(client)
         data_manager.render()
-        
+
         # File uploader component
         st.header("Upload New Files")
-        
+
         # Get the selected dataset name from session state if available
         dataset_name = st.session_state.get("current_dataset_name")
-        
+
         file_uploader = FileUploader(client, initial_dataset_name=dataset_name)
         files_ready = file_uploader.render()
-        
+
         if files_ready:
             # We'll handle processing in the chat interface
             st.rerun()
-    
+
     # Main content area
     if st.session_state.get("processing_files", False):
         # If we're processing files, show a chat interface with a temporary dataset id
