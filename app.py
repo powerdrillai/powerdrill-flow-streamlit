@@ -63,9 +63,15 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] .stButton button {
-        background-color: #3182CE !important;
+        background-color: #4A90E2 !important;
         color: white !important;
+        border: none !important;
+        padding: 0.5rem 1rem !important;
         border-radius: 0.375rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
     }
 
     [data-testid="stSidebar"] .stTextInput input,
@@ -108,8 +114,49 @@ st.markdown("""
 
     /* Button styling */
     .stButton button {
-        background-color: #3182CE;
-        color: white;
+        background-color: #4A90E2 !important;
+        color: white !important;
+        border: none !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.375rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    .stButton button:hover {
+        background-color: #357ABD !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .stButton button:active {
+        transform: translateY(0px) !important;
+    }
+
+    /* Sidebar button specific styling */
+    [data-testid="stSidebar"] .stButton button {
+        background-color: #4A90E2 !important;
+        color: white !important;
+        width: 100% !important;
+        margin: 0.25rem 0 !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    /* Question button specific styling */
+    button[kind="secondary"] {
+        background-color: #F0F2F6 !important;
+        color: #1E1E1E !important;
+        border: 1px solid #E0E3E7 !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+    }
+
+    button[kind="secondary"]:hover {
+        background-color: #E8EAF0 !important;
+        color: #000000 !important;
     }
 
     /* Progress bar */

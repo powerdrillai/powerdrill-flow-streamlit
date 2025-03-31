@@ -329,7 +329,11 @@ class PowerdrillClient:
         Returns:
             Response from the API
         """
-        return self._make_request("DEL", f"/datasets/{dataset_id}/datasources/{data_source_id}")
+        return self._make_request(
+            "DELETE", 
+            f"/datasets/{dataset_id}/datasources/{data_source_id}",
+            json_data={"user_id": self.user_id}
+        )
 
     # Session operations
 

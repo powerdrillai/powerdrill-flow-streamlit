@@ -68,10 +68,11 @@ class DataManager:
                 )
 
                 if selected_dataset:
-                    col1, col2 = st.columns(2)
+                    # 使用3:2的列宽比例，并添加一个空列作为间隔
+                    col1, col_spacing, col2 = st.columns([3, 0.5, 3])
 
                     with col1:
-                        if st.button("Use Selected Dataset", key="use_dataset"):
+                        if st.button("Use Selected Dataset", key="use_dataset", use_container_width=True):
                             # Get the selected dataset name
                             selected_dataset_name = next((d.get('name', '') for d in datasets if d.get('id') == selected_dataset), '')
                             # Store both ID and name in session state
@@ -80,7 +81,7 @@ class DataManager:
                             st.rerun()
 
                     with col2:
-                        if st.button("Delete Dataset", key="delete_dataset"):
+                        if st.button("Delete Dataset", key="delete_dataset", use_container_width=True):
                             self._delete_dataset(selected_dataset)
             else:
                 st.error("Failed to retrieve datasets")
@@ -107,8 +108,8 @@ class DataManager:
             # Get data sources for the current dataset
             response = self.api_client.list_data_sources(dataset_id)
 
-            if 'data' in response and 'records' in response['data']:
-                data_sources = response['data']['records']
+            if 'data' in response:
+                data_sources = response.get('data', {}).get('records', [])
 
                 if not data_sources:
                     st.info("No data sources found in this dataset.")
@@ -139,7 +140,7 @@ class DataManager:
                     if st.button("Delete Data Source", key="delete_source"):
                         self._delete_data_source(selected_source)
             else:
-                st.error("Failed to retrieve data sources")
+                st.info("No data sources found in this dataset.")
 
         except Exception as e:
             st.error(f"Error loading data sources: {str(e)}")
