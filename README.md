@@ -11,6 +11,12 @@ A Streamlit application for AI data analysis using the Powerdrill API, please re
 - Suggested questions for data exploration
 - Chat-like interface for interactions
 
+## Demo
+
+Watch this demo to see Powerdrill Flow Streamlit in action:
+
+[![Powerdrill Flow Streamlit Demo](https://img.youtube.com/vi/dTlJTmCTRiQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=dTlJTmCTRiQ)
+
 ## Supported File Formats
 
 - CSV (.csv)
