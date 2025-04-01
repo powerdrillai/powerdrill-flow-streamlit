@@ -42,16 +42,17 @@ To use this application, you'll need a Powerdrill account with valid API credent
 
 First, watch this video tutorial on how to create your Powerdrill Team:
 
-<iframe width="800" height="450" src="https://www.youtube.com/embed/I-0yGD9HeDw" title="Create Powerdrill Team Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Create Powerdrill Team Tutorial](https://img.youtube.com/vi/I-0yGD9HeDw/maxresdefault.jpg)](https://www.youtube.com/watch?v=I-0yGD9HeDw)
 
 Then, follow this video tutorial for setting up your API credentials:
 
-<iframe width="800" height="450" src="https://www.youtube.com/embed/qs-GsUgjb1g" title="Powerdrill API Setup Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Powerdrill API Setup Tutorial](https://img.youtube.com/vi/qs-GsUgjb1g/maxresdefault.jpg)](https://www.youtube.com/watch?v=qs-GsUgjb1g)
 
 ### Installation
 
 1. Clone the repository:
-   ```   git clone https://github.com/yourusername/powerdrill-flow-streamlit.git
+   ```
+   git clone https://github.com/yourusername/powerdrill-flow-streamlit.git
    cd powerdrill-flow-streamlit
    ```
 
@@ -103,9 +104,9 @@ powerdrill-flow-streamlit/
 ├── .env                  # Environment variables (create from .env.template)
 ├── .env.template         # Environment variables template
 ├── requirements.txt      # Python dependencies
-└── README.md             # This file
+└── README.md            # This file
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
