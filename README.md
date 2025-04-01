@@ -38,13 +38,46 @@ Watch this demo to see Powerdrill Flow Streamlit in action:
 
 ### Getting Powerdrill Credentials
 
-To use this application, you'll need a Powerdrill account with valid API credentials (**User ID** and **API Key**). Here's how to obtain them:
+#### Step 1. Create a team
 
-1. Sign up for a Powerdrill Team account if you haven't already
-2. Navigate to your account settings
-3. Look for the API section where you'll find your:
-   - User ID: A unique identifier for your account
-   - API Key: Your authentication token for API access
+1. Sign in to Powerdrill.
+
+2. Click your profile icon in the lower-left corner.
+
+3. In the menu, go to the **Workspace** section and click **Create team**.
+
+4. Enter your organization name, agree to the *Terms of Service* and *Privacy Policy*, and click **Continue**.
+
+5. Choose a pricing plan and set up payment, or skip this step and subscribe later.
+
+
+After creating your team, you'll be redirected to its admin console. A default project is automatically created.
+
+
+#### Step 2. Associate your user ID with a subscription
+
+1. From the top navigation bar, select **Subscriptions & plans**.
+
+2. In the target subscription row, click the value in the **Associated with** column.
+
+3. In the dialog box that is displayed, select your user ID and click **Submit**.
+
+
+#### Step 3. Get your API key of the target project
+
+1. Choose **Projects** from the top navigation bar.
+
+2. Click the **Default** project info card.
+
+3. On the **Users** tab that is displayed by default, click **Add user**.
+
+4. In the dialog box that is displayed, select your user ID and click **Add**.
+
+5. Click the **Project API keys** tab and click the **+ API access key** button.
+
+6. In the dialog box that is displayed, set a name and click **Create**.
+
+7. Copy and save your API key properly and click **I have saved my secret key** to finish the creation.
 
 First, watch this video tutorial on how to create your Powerdrill Team:
 
