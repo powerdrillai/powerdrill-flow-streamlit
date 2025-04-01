@@ -42,17 +42,16 @@ To use this application, you'll need a Powerdrill account with valid API credent
 
 First, watch this video tutorial on how to create your Powerdrill Team:
 
-[![Create Powerdrill Team Tutorial](https://img.youtube.com/vi/I-0yGD9HeDw/0.jpg)](https://www.youtube.com/watch?v=I-0yGD9HeDw)
+<iframe width="800" height="450" src="https://www.youtube.com/embed/I-0yGD9HeDw" title="Create Powerdrill Team Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 Then, follow this video tutorial for setting up your API credentials:
 
-[![Powerdrill API Setup Tutorial](https://img.youtube.com/vi/qs-GsUgjb1g/0.jpg)](https://www.youtube.com/watch?v=qs-GsUgjb1g)
+<iframe width="800" height="450" src="https://www.youtube.com/embed/qs-GsUgjb1g" title="Powerdrill API Setup Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/powerdrill-flow-streamlit.git
+   ```   git clone https://github.com/yourusername/powerdrill-flow-streamlit.git
    cd powerdrill-flow-streamlit
    ```
 
